@@ -19,7 +19,7 @@ Branch: `feat/ringer-recovery`. Orchestrator: Claude Code (Opus 5.5). Updated du
 - [x] **Phase 3: alert engine** (Codex 0.163.0, T3). Generation-based state machine, delay, gain, notification Stop, top card. Review found 2 defects (pre-ring IDLE from the TelephonyCallback initial state cancelled every alert; two ongoing notifications); Codex fixed both in the same session. Commit `c415eaf`.
 - [x] **Phase 4: UI** (OpenCode `glm-5.3-flash-free`, T4; first run failed with provider HTTP 503, retry succeeded). Restored schedule and vibrate UI, alert settings, home status, setup screen, edge-to-edge insets. Orchestrator fix: alarm-volume hint refresh. Commit `83b01e6`.
 - [x] **Phase 5: verification** (orchestrator). `./gradlew clean assembleDebug testDebugUnitTest lintDebug`: BUILD SUCCESSFUL, 33 tests, 0 failures, lint 0 errors / 66 warnings. Debug APK `app/build/outputs/apk/debug/app-debug.apk` (`net.leviro.ringer.debug`, versionCode 2, 1.1-debug). Installed side by side on the realme RMX3636: first launch crashed (`NullPointerException` in `Prefs.<init>`, also present in the old source); fixed from the installed build's behavior, relaunch reached the Setup screen with no crash. Commit `7fab09f`. Bytecode diff of APK vs baseline per method found no further behavior differences. `docs/MANUAL_E2E_CHECKLIST.md` written.
-- [x] **Phase 6: handoff** (orchestrator). README rewritten; Play readiness below; Antigravity read-only parity review run (see below).
+- [x] **Phase 6: handoff** (orchestrator). README rewritten; Play readiness below; Antigravity read-only parity review (agy 1.4.0, sandboxed, no write violation): all 24 audit rows OK, all safety rules PASS, 113/113 strings translated; 1 regression found (caller card lost FLAG_KEEP_SCREEN_ON) and fixed; its "dual foreground notification" risk was rejected because startForeground with a new id cancels the old foreground notification.
 
 ## Decisions
 
@@ -52,6 +52,8 @@ Branch: `feat/ringer-recovery`. Orchestrator: Claude Code (Opus 5.5). Updated du
 - DND modes that block alarms silence the alert; DND that already lets the caller ring can produce a double sound.
 - Volume keys stop the alert only while Leviro's card is focused.
 - Caller card and its touch pass-through over the system call screen are unverified on a real call.
+- When the background service start is refused, the fallback notification keeps its "sounds in N s" text until the call ends or the card is opened.
+- Changing the volume slider, ringer mode or DND during an active alert does not change that alert; answer, Stop or hang-up still end it.
 - Only realme RMX3636 / Android 15 is available; nothing was tested on other OEMs or Android versions.
 
 ## Blockers

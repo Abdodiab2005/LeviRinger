@@ -45,6 +45,7 @@ Confidence: **observed** (seen in APK bytecode/resources), **source-confirmed** 
 | Onboarding (permissions, role, battery, FSI, DND, OEM auto-start) | same 6 rows (observed) | same | match | DND row removed (permission removed); call-log wording removed |
 | Language EN/AR | `values-ar`, language radio group (observed) | same | match | keep; all new strings translated |
 | Test alarm menu | present (observed) | present | match | keep, labeled as not validating real calls |
+| Backup | `allowBackup=true` (observed) | `allowBackup=true` | match | changed to `false` so the priority list stays on the device |
 | Boot receiver (creates channels) | present (observed) | present | match | removed: no user-visible effect |
 | Startup crash guard | `Prefs.<init>` falls back to the passed context when `applicationContext` is null (observed) | uses `applicationContext` directly; crashes in `RingerApp.attachBaseContext` (reproduced on the phone with the debug build) | APK-only fix | restored |
 | Import/export, favorites, widgets, themes, analytics | not found | not found | absent in both | not added |

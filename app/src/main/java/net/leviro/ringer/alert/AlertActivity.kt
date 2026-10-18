@@ -36,7 +36,8 @@ class AlertActivity : AppCompatActivity() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         setVolumeControlStream(AudioManager.STREAM_ALARM)
-        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         binding = ActivityAlertBinding.inflate(layoutInflater)
