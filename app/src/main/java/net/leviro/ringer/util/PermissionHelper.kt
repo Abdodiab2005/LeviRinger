@@ -18,7 +18,6 @@ object PermissionHelper {
     fun runtimePermissions(): Array<String> {
         val list = mutableListOf(
             Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_CALL_LOG,
             Manifest.permission.READ_CONTACTS
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

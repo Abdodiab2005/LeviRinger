@@ -18,7 +18,10 @@ class DbHelper private constructor(context: Context) :
                 $COL_NORMALIZED    TEXT NOT NULL,
                 $COL_RINGTONE      TEXT,
                 $COL_NOTE          TEXT,
-                $COL_ENABLED       INTEGER NOT NULL DEFAULT 1
+                $COL_ENABLED       INTEGER NOT NULL DEFAULT 1,
+                $COL_VIBRATE_ONLY  INTEGER NOT NULL DEFAULT 0,
+                $COL_START_TIME    TEXT,
+                $COL_END_TIME      TEXT
             )
             """.trimIndent()
         )
@@ -26,12 +29,17 @@ class DbHelper private constructor(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // First version. Future migrations go here.
+        // v2 matches the schema of the installed 1.0 build: per-contact vibrate-only and time window.
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_VIBRATE_ONLY INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_START_TIME TEXT")
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_END_TIME TEXT")
+        }
     }
 
     companion object {
         const val DB_NAME = "leviro_ringer.db"
-        const val DB_VERSION = 1
+        const val DB_VERSION = 2
 
         const val TABLE = "vips"
         const val COL_ID = "_id"
@@ -41,6 +49,9 @@ class DbHelper private constructor(context: Context) :
         const val COL_RINGTONE = "ringtone"
         const val COL_NOTE = "note"
         const val COL_ENABLED = "enabled"
+        const val COL_VIBRATE_ONLY = "vibrate_only"
+        const val COL_START_TIME = "start_time"
+        const val COL_END_TIME = "end_time"
 
         @Volatile
         private var instance: DbHelper? = null

@@ -5,18 +5,23 @@ plugins {
 
 android {
     namespace 'net.leviro.ringer'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "net.leviro.ringer"
-        minSdk 23                 // Android 6.0
-        targetSdk 34              // Android 14
-        versionCode 1
-        versionName "1.0"
+        minSdk 29                 // Android 10 (call-screening role is the number source)
+        targetSdk 36              // Android 16, current Google Play requirement
+        versionCode 2             // must stay above the installed 1.0 (versionCode 1)
+        versionName "1.1"
         resourceConfigurations += ['en', 'ar']
     }
 
     buildTypes {
+        debug {
+            // Separate package so a debug install never replaces the installed release app or its data.
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
         release {
             minifyEnabled false   // keep simple for sideloading; no networking to obfuscate
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -33,13 +38,18 @@ android {
     buildFeatures {
         viewBinding true
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
     // First-party AndroidX / Google Material only. No networking, no analytics, no third-party libs.
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.activity:activity-ktx:1.9.1'
+    implementation 'androidx.activity:activity-ktx:1.9.3'
+
+    testImplementation 'junit:junit:4.13.2'
 }

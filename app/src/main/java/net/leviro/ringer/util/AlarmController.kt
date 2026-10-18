@@ -74,6 +74,22 @@ object AlarmController {
         }
     }
 
+    /** Fires the full alert with a fake caller so the user can check sound and lock-screen behavior. */
+    fun triggerTest(context: Context) {
+        trigger(
+            context,
+            context.getString(R.string.test_caller_name),
+            "+200000000000",
+            context.getString(R.string.test_caller_note),
+            Prefs(context).defaultRingtonePath
+        )
+    }
+
+    /** Re-checks a pending or sounding alert after the user changes settings, contacts or the master switch. */
+    fun onConfigChanged(context: Context) {
+        if (active && !Prefs(context).masterEnabled) stop(context)
+    }
+
     /** Stops the alarm everywhere: cancels notification, stops service, tells the alert to finish. */
     fun stop(context: Context) {
         active = false

@@ -80,6 +80,9 @@ class VipDao(context: Context) {
         put(DbHelper.COL_RINGTONE, ringtonePath)
         put(DbHelper.COL_NOTE, note)
         put(DbHelper.COL_ENABLED, if (enabled) 1 else 0)
+        put(DbHelper.COL_VIBRATE_ONLY, if (vibrateOnly) 1 else 0)
+        put(DbHelper.COL_START_TIME, startTime)
+        put(DbHelper.COL_END_TIME, endTime)
     }
 
     private fun Cursor.toVip(): Vip = Vip(
@@ -89,6 +92,9 @@ class VipDao(context: Context) {
         normalizedNumber = getString(getColumnIndexOrThrow(DbHelper.COL_NORMALIZED)),
         ringtonePath = getString(getColumnIndexOrThrow(DbHelper.COL_RINGTONE)),
         note = getString(getColumnIndexOrThrow(DbHelper.COL_NOTE)),
-        enabled = getInt(getColumnIndexOrThrow(DbHelper.COL_ENABLED)) == 1
+        enabled = getInt(getColumnIndexOrThrow(DbHelper.COL_ENABLED)) == 1,
+        vibrateOnly = getInt(getColumnIndexOrThrow(DbHelper.COL_VIBRATE_ONLY)) == 1,
+        startTime = getString(getColumnIndexOrThrow(DbHelper.COL_START_TIME)),
+        endTime = getString(getColumnIndexOrThrow(DbHelper.COL_END_TIME))
     )
 }

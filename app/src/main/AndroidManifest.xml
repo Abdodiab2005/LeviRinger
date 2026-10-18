@@ -4,7 +4,6 @@
 
     <!-- Call detection -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- Alarm playback while in background / over lock screen -->
@@ -32,8 +31,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LeviRinger"
-        tools:targetApi="34">
+        android:theme="@style/Theme.LeviRinger">
 
         <activity
             android:name=".ui.MainActivity"

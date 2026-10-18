@@ -107,13 +107,7 @@ class MainActivity : BaseActivity() {
 
     /** Fires the full alert with a fake caller so the user can verify sound + lock-screen behavior. */
     private fun testAlarm() {
-        AlarmController.trigger(
-            this,
-            getString(R.string.test_caller_name),
-            "+200000000000",
-            getString(R.string.test_caller_note),
-            prefs.defaultRingtonePath
-        )
+        AlarmController.triggerTest(this)
         Snackbar.make(binding.root, R.string.test_started, Snackbar.LENGTH_LONG).show()
     }
 }
