@@ -5,7 +5,8 @@ import android.content.Context
 /** Simple global settings store (defaults + language). Whitelist lives in SQLite. */
 class Prefs(context: Context) {
 
-    private val sp = context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+    // applicationContext is still null while Application.attachBaseContext runs (LocaleHelper).
+    private val sp = (context.applicationContext ?: context).getSharedPreferences(NAME, Context.MODE_PRIVATE)
 
     /** Absolute path to the global default alarm sound, or null = system default alarm. */
     var defaultRingtonePath: String?
