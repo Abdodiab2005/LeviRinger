@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">رنين ليفيرو</string>
+
+    <!-- Main -->
+    <string name="master_label">تنبيه الأولوية مُفعّل</string>
+    <string name="empty_hint">لا يوجد جهات اتصال ذات أولوية بعد.\nاضغط + لإضافة شخص يجب أن يصل إليك دائمًا.</string>
+    <string name="setup_needed">بعض الأذونات ناقصة. قد لا يعمل التنبيه بشكل موثوق حتى إكمال الإعداد.</string>
+    <string name="setup_button">فتح الإعداد</string>
+    <string name="settings">الإعدادات</string>
+    <string name="test_alarm">تجربة التنبيه</string>
+    <string name="test_started">بدأ تنبيه التجربة — يتوقف مثل التنبيه الحقيقي.</string>
+    <string name="test_caller_name">متصل تجريبي</string>
+    <string name="test_caller_note">هكذا سيظهر التنبيه.</string>
+
+    <!-- List item -->
+    <string name="delete">حذف</string>
+    <string name="cancel">إلغاء</string>
+    <string name="delete_title">حذف %s؟</string>
+    <string name="delete_message">لن يُشغّل هذا الاتصال تنبيه الأولوية بعد الآن.</string>
+
+    <!-- Add / edit -->
+    <string name="add_contact">إضافة جهة اتصال</string>
+    <string name="edit_contact">تعديل جهة الاتصال</string>
+    <string name="name_hint">الاسم</string>
+    <string name="number_hint">رقم الهاتف</string>
+    <string name="note_hint">ملاحظة تظهر على التنبيه (اختياري)</string>
+    <string name="enabled_label">مُفعّل</string>
+    <string name="pick_contact">اختيار من جهات الاتصال</string>
+    <string name="choose_ringtone">اختيار نغمة</string>
+    <string name="use_default">استخدام الافتراضي</string>
+    <string name="ringtone_default">صوت التنبيه الافتراضي</string>
+    <string name="ringtone_custom">تم اختيار نغمة مخصّصة</string>
+    <string name="ringtone_label">النغمة</string>
+    <string name="save">حفظ</string>
+    <string name="saved">تم الحفظ</string>
+    <string name="required">مطلوب</string>
+    <string name="contact_read_failed">تعذّر قراءة جهة الاتصال.</string>
+    <string name="ringtone_copy_failed">تعذّر استيراد الملف الصوتي.</string>
+
+    <!-- Alert -->
+    <string name="alert_title">مكالمة ذات أولوية</string>
+    <string name="alert_hint">اضغط زر الصوت أو إيقاف لكتم التنبيه</string>
+    <string name="unknown_caller">متصل غير معروف</string>
+    <string name="stop">إيقاف</string>
+
+    <!-- Notification channels -->
+    <string name="channel_alert_name">تنبيه المكالمات المهمة</string>
+    <string name="channel_alert_desc">تنبيه بملء الشاشة عند اتصال جهة ذات أولوية.</string>
+    <string name="channel_service_name">تشغيل التنبيه</string>
+    <string name="channel_service_desc">يُبقي التنبيه يعمل أثناء مكالمة الأولوية.</string>
+
+    <!-- Settings -->
+    <string name="default_ringtone_section">النغمة الافتراضية</string>
+    <string name="language_section">اللغة</string>
+    <string name="lang_system">حسب النظام</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ar">العربية</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">الإعداد</string>
+    <string name="onboarding_intro">امنح كل عنصر بالأسفل ليعمل التنبيه رغم الصامت والاهتزاز ووضع عدم الإزعاج. يفرض أندرويد موافقتك بنفسك على هذه الأذونات.</string>
+    <string name="grant">منح</string>
+    <string name="open">فتح</string>
+    <string name="done">تم</string>
+    <string name="perm_runtime_title">الهاتف وسجل المكالمات وجهات الاتصال</string>
+    <string name="perm_runtime_desc">مطلوبة لمعرفة المتصل ومطابقته مع قائمتك.</string>
+    <string name="perm_role_title">دور فحص المكالمات</string>
+    <string name="perm_role_desc">في أندرويد 10+ يتيح هذا للتطبيق قراءة رقم المتصل.</string>
+    <string name="perm_battery_title">تجاهل توفير البطارية</string>
+    <string name="perm_battery_desc">يمنع النظام من إيقاف التطبيق في الخلفية.</string>
+    <string name="perm_fullscreen_title">تنبيهات ملء الشاشة</string>
+    <string name="perm_fullscreen_desc">يسمح بظهور التنبيه فوق شاشة القفل.</string>
+    <string name="perm_dnd_title">الوصول لوضع عدم الإزعاج</string>
+    <string name="perm_dnd_desc">حماية إضافية حتى لا يكتم وضع عدم الإزعاج التنبيه.</string>
+    <string name="perm_autostart_title">التشغيل التلقائي (حسب الجهاز)</string>
+    <string name="perm_autostart_desc">تحتاج الشركة المصنّعة لتفعيل التشغيل التلقائي يدويًا، وإلا يُغلق التطبيق ولن يرن. هذا يفتح تلك الشاشة.</string>
+</resources>

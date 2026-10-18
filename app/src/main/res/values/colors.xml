@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0B0F14</color>
+    <color name="surface">#121821</color>
+    <color name="surface_variant">#1B2430</color>
+    <color name="on_bg">#E6EDF3</color>
+    <color name="on_surface_muted">#8B98A5</color>
+    <color name="neon">#00E5FF</color>
+    <color name="neon_dim">#0097A7</color>
+    <color name="accent_green">#00E676</color>
+    <color name="danger">#FF5252</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

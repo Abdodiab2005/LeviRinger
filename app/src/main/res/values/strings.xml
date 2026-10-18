@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Leviro Ringer</string>
+
+    <!-- Main -->
+    <string name="master_label">Priority alarm active</string>
+    <string name="empty_hint">No priority contacts yet.\nTap + to add someone who must always reach you.</string>
+    <string name="setup_needed">Some permissions are missing. The alarm may not ring reliably until setup is complete.</string>
+    <string name="setup_button">Open setup</string>
+    <string name="settings">Settings</string>
+    <string name="test_alarm">Test alarm</string>
+    <string name="test_started">Test alarm started — it stops like a real one.</string>
+    <string name="test_caller_name">Test caller</string>
+    <string name="test_caller_note">This is how the alert will look.</string>
+
+    <!-- List item -->
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_title">Delete %s?</string>
+    <string name="delete_message">This contact will no longer trigger the priority alarm.</string>
+
+    <!-- Add / edit -->
+    <string name="add_contact">Add contact</string>
+    <string name="edit_contact">Edit contact</string>
+    <string name="name_hint">Name</string>
+    <string name="number_hint">Phone number</string>
+    <string name="note_hint">Note shown on the alert (optional)</string>
+    <string name="enabled_label">Enabled</string>
+    <string name="pick_contact">Pick from contacts</string>
+    <string name="choose_ringtone">Choose ringtone</string>
+    <string name="use_default">Use default</string>
+    <string name="ringtone_default">Default alarm sound</string>
+    <string name="ringtone_custom">Custom ringtone selected</string>
+    <string name="ringtone_label">Ringtone</string>
+    <string name="save">Save</string>
+    <string name="saved">Saved</string>
+    <string name="required">Required</string>
+    <string name="contact_read_failed">Could not read that contact.</string>
+    <string name="ringtone_copy_failed">Could not import that audio file.</string>
+
+    <!-- Alert -->
+    <string name="alert_title">Priority call</string>
+    <string name="alert_hint">Press a volume key or Stop to silence</string>
+    <string name="unknown_caller">Unknown caller</string>
+    <string name="stop">Stop</string>
+
+    <!-- Notification channels -->
+    <string name="channel_alert_name">Priority call alert</string>
+    <string name="channel_alert_desc">Full-screen alert when a priority contact calls.</string>
+    <string name="channel_service_name">Alarm playback</string>
+    <string name="channel_service_desc">Keeps the alarm sounding during a priority call.</string>
+
+    <!-- Settings -->
+    <string name="default_ringtone_section">Default ringtone</string>
+    <string name="language_section">Language</string>
+    <string name="lang_system">Follow system</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ar">العربية</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Setup</string>
+    <string name="onboarding_intro">Grant each item below so the alarm can ring through silent, vibrate and Do Not Disturb. Android requires you to approve these yourself.</string>
+    <string name="grant">Grant</string>
+    <string name="open">Open</string>
+    <string name="done">Done</string>
+    <string name="perm_runtime_title">Phone, call log and contacts</string>
+    <string name="perm_runtime_desc">Needed to detect who is calling and match your list.</string>
+    <string name="perm_role_title">Call screening role</string>
+    <string name="perm_role_desc">On Android 10+ this lets the app read the caller number.</string>
+    <string name="perm_battery_title">Ignore battery optimization</string>
+    <string name="perm_battery_desc">Stops the system from sleeping the app in the background.</string>
+    <string name="perm_fullscreen_title">Full-screen alerts</string>
+    <string name="perm_fullscreen_desc">Allows the alert to appear over the lock screen.</string>
+    <string name="perm_dnd_title">Do Not Disturb access</string>
+    <string name="perm_dnd_desc">Safety net so the alarm is never muted by DND.</string>
+    <string name="perm_autostart_title">Auto-start (device specific)</string>
+    <string name="perm_autostart_desc">Your manufacturer needs Auto-start enabled manually, or the app gets killed and will not ring. This opens that screen.</string>
+</resources>
