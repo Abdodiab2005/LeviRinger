@@ -1,173 +1,195 @@
 package net.leviro.ringer.service
 
-import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import androidx.core.app.NotificationCompat
+import android.provider.Settings
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
+import android.util.Log
 import androidx.core.app.ServiceCompat
-import net.leviro.ringer.R
-import net.leviro.ringer.alert.AlertActivity
+import net.leviro.ringer.util.AlarmController
 import net.leviro.ringer.util.Const
 import net.leviro.ringer.util.Notifications
+import net.leviro.ringer.util.Prefs
 import net.leviro.ringer.util.RingtoneStore
 import java.io.File
 
-/**
- * Foreground service that actually makes the noise. Audio plays on the ALARM stream with
- * USAGE_ALARM attributes — this is what lets it sound through silent, vibrate, and (by
- * default) Do Not Disturb, without us changing any of the user's system settings.
- */
+/** Holds playback resources only while the controller owns a live generation. */
 class AlarmService : Service() {
-
     private var player: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var wakeLock: PowerManager.WakeLock? = null
-    private var savedAlarmVolume: Int = -1
+    private var savedAlarmVolume: Int? = null
+    private var generation: Long? = null
+    private var modernListener: TelephonyCallback? = null
+    private var legacyListener: PhoneStateListener? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Notifications.createChannels(this)
-        startInForeground(intent)
-        acquireWakeLock()
-        maximizeAlarmVolume()
-        startVibration()
-        startPlayback(intent?.getStringExtra(Const.EXTRA_RINGTONE))
-        return START_NOT_STICKY // do not auto-restart after the call is over
-    }
-
-    private fun startInForeground(intent: Intent?) {
-        val name = intent?.getStringExtra(Const.EXTRA_NAME).orEmpty()
-        val number = intent?.getStringExtra(Const.EXTRA_NUMBER).orEmpty()
-
-        val open = PendingIntent.getActivity(
-            this, 0,
-            Intent(this, AlertActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra(Const.EXTRA_NAME, name)
-                .putExtra(Const.EXTRA_NUMBER, number)
-                .putExtra(Const.EXTRA_RINGTONE, intent?.getStringExtra(Const.EXTRA_RINGTONE)),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notif = NotificationCompat.Builder(this, Const.CHANNEL_SERVICE)
-            .setSmallIcon(R.drawable.ic_ring)
-            .setContentTitle(getString(R.string.alert_title))
-            .setContentText(if (name.isNotBlank()) name else number)
-            .setOngoing(true)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setContentIntent(open)
-            .build()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ServiceCompat.startForeground(
-                this, Const.NOTIF_SERVICE, notif,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-            )
-        } else {
-            startForeground(Const.NOTIF_SERVICE, notif)
+        if (intent?.action != Const.ACTION_ARM ||
+            !AlarmController.attach(this, intent.getLongExtra(Const.EXTRA_GENERATION, -1))) {
+            if (generation == null) stopSelf(startId)
         }
+        return START_NOT_STICKY
     }
 
-    private fun startPlayback(ringtonePath: String?) {
-        try {
-            val attrs = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-
-            player = MediaPlayer().apply {
-                setAudioAttributes(attrs)
-                if (ringtonePath != null && File(ringtonePath).exists()) {
-                    setDataSource(ringtonePath)
-                } else {
-                    setDataSource(this@AlarmService, RingtoneStore.defaultAlarmUri())
-                }
-                isLooping = true
-                setOnPreparedListener { it.start() }
-                prepareAsync()
+    internal fun arm(call: AlarmController.CallAlert, remainingDelay: Long) {
+        releaseAlert()
+        generation = call.generation
+        val notification = Notifications.build(this, call, waiting = true, fullScreen = false,
+            channel = Const.CHANNEL_SERVICE)
+        ServiceCompat.startForeground(this, Const.NOTIF_SERVICE, notification,
+            if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0)
+        wakeLock = getSystemService(PowerManager::class.java)
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "LeviRinger:alarm").apply {
+                setReferenceCounted(false)
+                acquire(remainingDelay + if (call.test) 30_000L else 180_000L)
             }
-        } catch (e: Exception) {
-            // If the custom file is unreadable, fall back to the system alarm.
-            try {
-                player?.release()
-                player = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
-                    )
-                    setDataSource(this@AlarmService, Uri.parse(android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI.toString()))
-                    isLooping = true
-                    setOnPreparedListener { it.start() }
-                    prepareAsync()
-                }
-            } catch (ignored: Exception) {
-            }
-        }
+        if (!call.test) registerCallListener(call.generation)
     }
 
-    private fun startVibration() {
-        val v = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+    internal fun alert(call: AlarmController.CallAlert, prefs: Prefs) {
+        if (!AlarmController.playbackAllowed(call.generation)) return
+        Log.i(TAG, "generation=${call.generation} alert start gain=${prefs.alertVolumePercent}")
+        ServiceCompat.startForeground(this, Const.NOTIF_ALERT,
+            Notifications.build(this, call, waiting = false,
+                fullScreen = prefs.showAlertCard && Notifications.canUseFullScreenIntent(this),
+                channel = Const.CHANNEL_ALERT),
+            if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0)
+        vibrator = if (Build.VERSION.SDK_INT >= 31) {
+            getSystemService(VibratorManager::class.java).defaultVibrator
         } else {
             @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            getSystemService(Vibrator::class.java)
         }
-        vibrator = v
-        val pattern = longArrayOf(0, 700, 500)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createWaveform(pattern, 0))
-        } else {
+        vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 700, 500), 0))
+        if (!call.vibrateOnly && prefs.alertVolumePercent > 0) {
+            if (prefs.boostAlarmVolume) boostVolume()
+            play(call, prefs.alertVolumePercent / 100f, fallback = false)
+        }
+    }
+
+    private fun play(call: AlarmController.CallAlert, gain: Float, fallback: Boolean) {
+        if (!AlarmController.playbackAllowed(call.generation)) return
+        val candidate = MediaPlayer()
+        player = candidate
+        fun failed() {
+            if (player !== candidate) return
+            player = null
+            candidate.release()
+            Log.w(TAG, "generation=${call.generation} playback error fallback=$fallback")
+            if (!fallback && AlarmController.playbackAllowed(call.generation)) play(call, gain, fallback = true)
+        }
+        try {
+            candidate.setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+            candidate.setVolume(gain, gain)
+            candidate.isLooping = true
+            candidate.setOnPreparedListener {
+                if (player === it && AlarmController.playbackAllowed(call.generation)) {
+                    try { it.start() } catch (e: IllegalStateException) { failed() }
+                }
+            }
+            candidate.setOnErrorListener { _, _, _ -> failed(); true }
+            val path = call.ringtonePath
+            when {
+                fallback -> candidate.setDataSource(this, Settings.System.DEFAULT_ALARM_ALERT_URI)
+                path != null && File(path).isFile -> candidate.setDataSource(path)
+                else -> candidate.setDataSource(this, RingtoneStore.defaultAlarmUri())
+            }
+            candidate.prepareAsync()
+        } catch (e: Exception) {
+            failed()
+        }
+    }
+
+    private fun registerCallListener(expected: Long) {
+        val telephony = getSystemService(TelephonyManager::class.java)
+        fun changed(state: Int) {
+            if (generation != expected) return
+            val value = when (state) {
+                TelephonyManager.CALL_STATE_RINGING -> TelephonyManager.EXTRA_STATE_RINGING
+                TelephonyManager.CALL_STATE_OFFHOOK -> TelephonyManager.EXTRA_STATE_OFFHOOK
+                else -> TelephonyManager.EXTRA_STATE_IDLE
+            }
+            AlarmController.onCallStateChanged(this, value)
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= 31) {
+                val listener = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+                    override fun onCallStateChanged(state: Int) = changed(state)
+                }
+                modernListener = listener
+                telephony.registerTelephonyCallback(mainExecutor, listener)
+            } else {
+                @Suppress("DEPRECATION")
+                val listener = object : PhoneStateListener() {
+                    override fun onCallStateChanged(state: Int, phoneNumber: String?) = changed(state)
+                }
+                legacyListener = listener
+                @Suppress("DEPRECATION")
+                telephony.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "generation=$expected phone-state listener denied")
+        }
+    }
+
+    private fun boostVolume() {
+        val audio = getSystemService(AudioManager::class.java)
+        try {
+            savedAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM)
+            audio.setStreamVolume(AudioManager.STREAM_ALARM, audio.getStreamMaxVolume(AudioManager.STREAM_ALARM), 0)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "generation=$generation volume boost denied")
+        }
+    }
+
+    /** Synchronous cleanup prevents an old service exit from touching a newer player's resources. */
+    internal fun releaseAlert() {
+        generation = null
+        val old = player
+        player = null
+        old?.setOnPreparedListener(null)
+        old?.setOnErrorListener(null)
+        old?.release()
+        vibrator?.cancel()
+        vibrator = null
+        savedAlarmVolume?.let {
+            try { getSystemService(AudioManager::class.java).setStreamVolume(AudioManager.STREAM_ALARM, it, 0) }
+            catch (e: SecurityException) { Log.w(TAG, "alarm volume restore denied") }
+        }
+        savedAlarmVolume = null
+        if (wakeLock?.isHeld == true) wakeLock?.release()
+        wakeLock = null
+        val telephony = getSystemService(TelephonyManager::class.java)
+        try {
+            if (Build.VERSION.SDK_INT >= 31) modernListener?.let { telephony.unregisterTelephonyCallback(it) }
             @Suppress("DEPRECATION")
-            v.vibrate(pattern, 0)
-        }
-    }
-
-    private fun maximizeAlarmVolume() {
-        try {
-            val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            savedAlarmVolume = am.getStreamVolume(AudioManager.STREAM_ALARM)
-            val max = am.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-            am.setStreamVolume(AudioManager.STREAM_ALARM, max, 0)
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun restoreAlarmVolume() {
-        if (savedAlarmVolume < 0) return
-        try {
-            val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            am.setStreamVolume(AudioManager.STREAM_ALARM, savedAlarmVolume, 0)
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun acquireWakeLock() {
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "LeviRinger:alarm").apply {
-            setReferenceCounted(false)
-            acquire(3 * 60 * 1000L) // safety timeout: never longer than a ring should last
-        }
+            legacyListener?.let { telephony.listen(it, PhoneStateListener.LISTEN_NONE) }
+        } catch (e: SecurityException) { Log.w(TAG, "phone-state listener removal denied") }
+        modernListener = null
+        legacyListener = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     override fun onDestroy() {
-        try { player?.stop() } catch (e: Exception) {}
-        player?.release()
-        player = null
-        vibrator?.cancel()
-        restoreAlarmVolume()
-        if (wakeLock?.isHeld == true) wakeLock?.release()
-        wakeLock = null
+        AlarmController.serviceDestroyed(this)
+        releaseAlert()
         super.onDestroy()
     }
+
+    private companion object { const val TAG = "LeviroRinger" }
 }

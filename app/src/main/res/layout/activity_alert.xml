@@ -1,79 +1,66 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:gravity="center"
+    android:layout_height="wrap_content"
+    android:background="@drawable/alert_card_background"
     android:orientation="vertical"
-    android:padding="28dp">
-
-    <ImageView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_ring"
-        app:tint="@color/neon" />
+    android:padding="20dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:letterSpacing="0.1"
         android:text="@string/alert_title"
-        android:textAllCaps="true"
         android:textColor="@color/neon"
         android:textSize="14sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtName"
-        android:layout_width="wrap_content"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
+        android:layout_marginTop="8dp"
         android:textColor="@color/on_bg"
-        android:textSize="34sp"
+        android:textSize="24sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtNumber"
-        android:layout_width="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
         android:textColor="@color/on_surface_muted"
-        android:textSize="18sp" />
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/txtNote"
+        android:maxLines="3"
+        android:ellipsize="end"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:gravity="center"
+        android:layout_marginTop="8dp"
         android:textColor="@color/accent_green"
         android:textSize="16sp"
         android:visibility="gone" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="40dp" />
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStop"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="12dp"
         android:backgroundTint="@color/danger"
-        android:text="@string/stop"
+        android:text="@string/engine_stop_alert"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        app:cornerRadius="32dp" />
+        app:cornerRadius="16dp" />
 
     <TextView
         android:id="@+id/txtHint"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
+        android:text="@string/engine_volume_hint"
         android:textColor="@color/on_surface_muted"
         android:textSize="13sp" />
 </LinearLayout>

@@ -11,22 +11,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-
-    <!-- Bypass / coexist with Do Not Disturb -->
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <!-- Notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Survive reboot + ask to ignore battery optimization -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Ask to ignore battery optimization -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".RingerApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -62,7 +57,6 @@
             android:exported="false"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
-            android:showOnLockScreen="true"
             android:turnScreenOn="true"
             android:taskAffinity=""
             android:theme="@style/Theme.LeviRinger.Alert" />
@@ -74,7 +68,7 @@
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Plays a loud alarm over silent/vibrate/DND for user-selected priority callers during an incoming call." />
+                android:value="Incoming-call-triggered short wait of 0-30 s, then alarm-style playback for a user-selected priority caller, stopped by Stop, answer or hang-up." />
         </service>
 
         <!-- Call-screening service: number capture on Android 10+ (API 29+) -->
@@ -87,7 +81,7 @@
             </intent-filter>
         </service>
 
-        <!-- Phone state: call-end detection on all versions + number capture on API < 29 -->
+        <!-- Phone state: ringing and call-end detection -->
         <receiver
             android:name=".call.PhoneStateReceiver"
             android:exported="true">
@@ -97,13 +91,8 @@
         </receiver>
 
         <receiver
-            android:name=".service.BootReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+            android:name=".alert.StopAlertReceiver"
+            android:exported="false" />
 
     </application>
 </manifest>

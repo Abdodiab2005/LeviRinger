@@ -4,6 +4,13 @@ object Const {
     // Broadcast actions (internal)
     const val ACTION_STOP_ALERT = "net.leviro.ringer.STOP_ALERT"
 
+    const val ACTION_ARM = "net.leviro.ringer.ARM"
+    const val ACTION_USER_STOP = "net.leviro.ringer.USER_STOP"
+    const val EXTRA_GENERATION = "extra_generation"
+    const val EXTRA_VIP_ID = "extra_vip_id"
+    const val EXTRA_VIBRATE_ONLY = "extra_vibrate_only"
+    const val EXTRA_DELAY_SECONDS = "extra_delay_seconds"
+
     // Intent extras passed to the alert / service
     const val EXTRA_NAME = "extra_name"
     const val EXTRA_NUMBER = "extra_number"
