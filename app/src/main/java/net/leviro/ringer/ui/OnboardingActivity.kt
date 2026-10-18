@@ -1,9 +1,12 @@
 package net.leviro.ringer.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import net.leviro.ringer.R
 import net.leviro.ringer.databinding.ActivityOnboardingBinding
@@ -41,20 +44,18 @@ class OnboardingActivity : BaseActivity() {
             PermissionHelper.callScreeningRoleIntent(this)?.let { genericResult.launch(it) }
         }
         binding.btnBattery.setOnClickListener {
+            // Required so the alert can start from the background during a call.
             genericResult.launch(PermissionHelper.batteryOptimizationIntent(this))
         }
         binding.btnFullscreen.setOnClickListener {
             genericResult.launch(PermissionHelper.fullScreenIntentSettings(this))
         }
-        binding.btnDnd.setOnClickListener {
-            genericResult.launch(PermissionHelper.notificationPolicyIntent())
-        }
         binding.btnAutostart.setOnClickListener {
             if (!OemAutostart.open(this)) {
                 // Fall back to the app's system settings page.
                 genericResult.launch(
-                    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = android.net.Uri.parse("package:$packageName")
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.parse("package:$packageName")
                     }
                 )
             }
@@ -75,29 +76,28 @@ class OnboardingActivity : BaseActivity() {
         mark(binding.tickPerms, PermissionHelper.hasAllRuntime(this))
 
         // 2) call-screening role (API 29+ only)
-        val roleNeeded = PermissionHelper.needsCallScreeningRole(this)
-        binding.rowRole.visibility =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) View.VISIBLE else View.GONE
-        mark(binding.tickRole, !roleNeeded)
+        val roleAvailable = PermissionHelper.isCallScreeningRoleAvailable(this)
+        val roleHeld = roleAvailable && PermissionHelper.isCallScreeningRoleHeld(this)
+        binding.tickRole.visibility = if (roleAvailable) View.VISIBLE else View.GONE
+        binding.btnRole.visibility = if (roleAvailable && !roleHeld) View.VISIBLE else View.GONE
+        binding.txtRoleUnsupported.visibility = if (!roleAvailable) View.VISIBLE else View.GONE
+        mark(binding.tickRole, roleHeld)
 
         // 3) battery optimization
         mark(binding.tickBattery, PermissionHelper.isIgnoringBatteryOptimizations(this))
 
-        // 4) full-screen intent (API 34+ only)
+        // 4) full-screen intent (API 34+ only, optional)
         binding.rowFullscreen.visibility =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) View.VISIBLE else View.GONE
         mark(binding.tickFullscreen, PermissionHelper.canUseFullScreenIntent(this))
 
-        // 5) DND policy access (optional)
-        mark(binding.tickDnd, PermissionHelper.hasNotificationPolicyAccess(this))
-
-        // 6) OEM autostart (only on known-aggressive devices; cannot be auto-detected, so we
+        // 5) OEM autostart (only on known-aggressive devices; cannot be auto-detected, so we
         //    just surface the guidance — no tick)
         binding.rowAutostart.visibility =
             if (OemAutostart.isLikelyAffected()) View.VISIBLE else View.GONE
     }
 
-    private fun mark(view: android.widget.ImageView, done: Boolean) {
+    private fun mark(view: ImageView, done: Boolean) {
         view.setImageResource(if (done) R.drawable.ic_check else R.drawable.ic_pending)
     }
 }

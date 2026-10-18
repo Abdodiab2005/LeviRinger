@@ -40,6 +40,15 @@
                 android:textColor="@color/on_surface_muted"
                 android:textSize="14sp"
                 tools:text="+20 100 123 4567" />
+
+            <TextView
+                android:id="@+id/txtDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/neon_dim"
+                android:textSize="13sp"
+                android:visibility="gone"
+                tools:text="Vibrate only · 08:00 to 17:00" />
         </LinearLayout>
 
         <com.google.android.material.materialswitch.MaterialSwitch

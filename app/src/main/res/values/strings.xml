@@ -9,9 +9,21 @@
     <string name="setup_button">Open setup</string>
     <string name="settings">Settings</string>
     <string name="test_alarm">Test alarm</string>
-    <string name="test_started">Test alarm started — it stops like a real one.</string>
+    <string name="test_started">Test alarm started — a preview cannot validate real-call, background or Do Not Disturb behavior.</string>
     <string name="test_caller_name">Test caller</string>
     <string name="test_caller_note">This is how the alert will look.</string>
+
+    <!-- Home status card -->
+    <string name="status_active">Active</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_needs">Setup needed: %1$s</string>
+    <string name="status_role_unavailable">This phone does not support call screening apps.</string>
+    <string name="missing_role">call-screening role</string>
+    <string name="missing_runtime">phone, contacts and notification permissions</string>
+    <string name="missing_battery">battery optimization</string>
+    <string name="schedule_active_now">Active hours now</string>
+    <string name="schedule_outside_hours">Outside active hours (%1$s to %2$s)</string>
 
     <!-- List item -->
     <string name="delete">Delete</string>
@@ -37,6 +49,16 @@
     <string name="required">Required</string>
     <string name="contact_read_failed">Could not read that contact.</string>
     <string name="ringtone_copy_failed">Could not import that audio file.</string>
+    <string name="vibrate_only_label">Vibrate only (no sound)</string>
+    <string name="schedule_label">Schedule (Optional)</string>
+    <string name="schedule_active_between">Active between:</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="clear">Clear</string>
+    <string name="schedule_both_required">Choose both a start and an end time, or clear the schedule.</string>
+    <string name="duplicate_number">This number is already in your list</string>
+    <string name="item_vibrate_only">Vibrate only</string>
+    <string name="item_window_fmt">%1$s to %2$s</string>
 
     <!-- Alert -->
     <string name="alert_title">Priority call</string>
@@ -52,6 +74,33 @@
 
     <!-- Settings -->
     <string name="default_ringtone_section">Default ringtone</string>
+    <string name="alert_sound_section">Alert sound</string>
+    <string name="volume_label_fmt">Alert volume: %1$d%%</string>
+    <string name="volume_zero_hint">0% means no sound, only vibration and notification</string>
+    <string name="preview">Preview</string>
+    <string name="preview_stop">Stop preview</string>
+    <string name="alarm_volume_percent">System alarm volume: %1$d%%</string>
+    <string name="alarm_volume_zero_warning">System alarm volume is 0 — raise it, or the alert will not be heard.</string>
+    <string name="preview_note">Preview only checks the sound. It cannot test a real call, Do Not Disturb or background behavior.</string>
+    <string name="delay_label_fmt">Wait %1$d s before the alert sounds</string>
+    <string name="delay_hint">0 = immediately</string>
+    <string name="global_vibrate_label">Default to vibrate only</string>
+    <string name="ring_also_label">Also alert when the phone rings normally</string>
+    <string name="ring_also_desc">Off avoids a second ringtone when your phone already rings.</string>
+    <string name="show_card_label">Show caller card</string>
+    <string name="boost_label">Raise alarm volume to max during an alert</string>
+    <string name="boost_desc">Changes the shared alarm volume while the alert sounds and restores it afterward.</string>
+    <string name="global_schedule_label">Enable global schedule</string>
+    <string name="schedule_hint">Alerts only fire inside these hours. A start later than the end runs overnight.</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
+    <string name="limits_title">How it works and limits</string>
+    <string name="limits_body">• Needs the call-screening role — it replaces another screening app such as a caller-ID app.\n• Do Not Disturb modes that block alarms can still silence the alert.\n• If Do Not Disturb already lets this caller ring you, you may hear both.\n• Volume keys stop the alert only while the Leviro caller card is focused; otherwise use Stop in the notification.\n• Some phone makers stop background apps unless battery optimization is off and auto-start is allowed.\n• Hidden caller IDs cannot be matched.</string>
     <string name="language_section">Language</string>
     <string name="lang_system">Follow system</string>
     <string name="lang_en">English</string>
@@ -59,18 +108,19 @@
 
     <!-- Onboarding -->
     <string name="onboarding_title">Setup</string>
-    <string name="onboarding_intro">Grant each item below so the alarm can ring through silent, vibrate and Do Not Disturb. Android requires you to approve these yourself.</string>
+    <string name="onboarding_intro">Grant each item below so the priority alarm can reach you while your phone is silent or on vibrate. Android requires you to approve these yourself.</string>
     <string name="grant">Grant</string>
     <string name="open">Open</string>
     <string name="done">Done</string>
-    <string name="perm_runtime_title">Phone, call log and contacts</string>
+    <string name="role_unavailable">Not supported on this phone</string>
+    <string name="perm_runtime_title">Phone, contacts and notifications</string>
     <string name="perm_runtime_desc">Needed to detect who is calling and match your list.</string>
     <string name="perm_role_title">Call screening role</string>
     <string name="perm_role_desc">On Android 10+ this lets the app read the caller number.</string>
     <string name="perm_battery_title">Ignore battery optimization</string>
-    <string name="perm_battery_desc">Stops the system from sleeping the app in the background.</string>
+    <string name="perm_battery_desc">Lets the alert start from the background during a call — required for automatic alerts.</string>
     <string name="perm_fullscreen_title">Full-screen alerts</string>
-    <string name="perm_fullscreen_desc">Allows the alert to appear over the lock screen.</string>
+    <string name="perm_fullscreen_desc">Optional: lets the caller card appear over the lock screen.</string>
     <string name="perm_dnd_title">Do Not Disturb access</string>
     <string name="perm_dnd_desc">Safety net so the alarm is never muted by DND.</string>
     <string name="perm_autostart_title">Auto-start (device specific)</string>

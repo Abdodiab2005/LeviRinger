@@ -1,6 +1,7 @@
 package net.leviro.ringer.ui
 
 import android.app.Activity
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,10 +12,11 @@ import net.leviro.ringer.R
 import net.leviro.ringer.databinding.ActivityAddContactBinding
 import net.leviro.ringer.db.Vip
 import net.leviro.ringer.db.VipDao
+import net.leviro.ringer.util.AlarmController
 import net.leviro.ringer.util.PhoneMatch
-import net.leviro.ringer.util.Prefs
 import net.leviro.ringer.util.RingtoneStore
 import java.io.File
+import java.util.Locale
 
 class AddContactActivity : BaseActivity() {
 
@@ -23,6 +25,8 @@ class AddContactActivity : BaseActivity() {
     private var editingId: Long = 0
     private var existing: Vip? = null
     private var pickedRingtonePath: String? = null
+    private var startTime: String? = null
+    private var endTime: String? = null
 
     private val pickContact = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -51,6 +55,7 @@ class AddContactActivity : BaseActivity() {
             binding.toolbar.title = getString(R.string.add_contact)
             binding.swEnabled.isChecked = true
         }
+        refreshTimeButtons()
 
         binding.btnPickContact.setOnClickListener {
             pickContact.launch(
@@ -65,6 +70,13 @@ class AddContactActivity : BaseActivity() {
             pickedRingtonePath = null
             binding.txtRingtone.text = getString(R.string.ringtone_default)
         }
+        binding.btnStartTime.setOnClickListener { pickTime(isStart = true) }
+        binding.btnEndTime.setOnClickListener { pickTime(isStart = false) }
+        binding.btnClearSchedule.setOnClickListener {
+            startTime = null
+            endTime = null
+            refreshTimeButtons()
+        }
         binding.btnSave.setOnClickListener { save() }
     }
 
@@ -73,6 +85,9 @@ class AddContactActivity : BaseActivity() {
         binding.editNumber.setText(vip.number)
         binding.editNote.setText(vip.note ?: "")
         binding.swEnabled.isChecked = vip.enabled
+        binding.swVibrateOnly.isChecked = vip.vibrateOnly
+        startTime = vip.startTime
+        endTime = vip.endTime
         pickedRingtonePath = vip.ringtonePath
         binding.txtRingtone.text = ringtoneLabel(vip.ringtonePath)
     }
@@ -121,11 +136,42 @@ class AddContactActivity : BaseActivity() {
             getString(R.string.ringtone_custom)
         }
 
+    /** 24-hour picker. Unset start defaults to 00:00 and unset end to 23:59, like the installed build. */
+    private fun pickTime(isStart: Boolean) {
+        val current = if (isStart) startTime else endTime
+        val parts = current?.split(":")
+        val defaultHour = if (isStart) 0 else 23
+        val defaultMinute = if (isStart) 0 else 59
+        val hour = parts?.getOrNull(0)?.toIntOrNull() ?: defaultHour
+        val minute = parts?.getOrNull(1)?.toIntOrNull() ?: defaultMinute
+        TimePickerDialog(this, { _, h, m ->
+            val value = String.format(Locale.US, "%02d:%02d", h, m)
+            if (isStart) startTime = value else endTime = value
+            refreshTimeButtons()
+        }, hour, minute, true).show()
+    }
+
+    private fun refreshTimeButtons() {
+        binding.btnStartTime.text = startTime ?: getString(R.string.start_time)
+        binding.btnEndTime.text = endTime ?: getString(R.string.end_time)
+    }
+
     private fun save() {
         val name = binding.editName.text?.toString()?.trim().orEmpty()
         val number = binding.editNumber.text?.toString()?.trim().orEmpty()
         if (name.isEmpty()) { binding.editName.error = getString(R.string.required); return }
         if (number.isEmpty()) { binding.editNumber.error = getString(R.string.required); return }
+        if ((startTime == null) != (endTime == null)) {
+            Toast.makeText(this, R.string.schedule_both_required, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val duplicate = dao.getAll().any {
+            it.id != editingId && PhoneMatch.matches(number, it.number)
+        }
+        if (duplicate) {
+            binding.editNumber.error = getString(R.string.duplicate_number)
+            return
+        }
 
         val vip = Vip(
             id = editingId,
@@ -134,7 +180,10 @@ class AddContactActivity : BaseActivity() {
             normalizedNumber = PhoneMatch.normalize(number),
             ringtonePath = pickedRingtonePath,
             note = binding.editNote.text?.toString()?.trim()?.ifBlank { null },
-            enabled = binding.swEnabled.isChecked
+            enabled = binding.swEnabled.isChecked,
+            vibrateOnly = binding.swVibrateOnly.isChecked,
+            startTime = startTime,
+            endTime = endTime
         )
 
         if (editingId == 0L) {
@@ -145,6 +194,7 @@ class AddContactActivity : BaseActivity() {
             if (old != null && old != pickedRingtonePath) RingtoneStore.deleteIfOwned(this, old)
             dao.update(vip)
         }
+        AlarmController.onConfigChanged(this)
         Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
         finish()
     }
