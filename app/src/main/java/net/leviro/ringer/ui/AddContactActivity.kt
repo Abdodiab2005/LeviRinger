@@ -7,13 +7,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.widget.Toast
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.material.button.MaterialButtonToggleGroup
 import net.leviro.ringer.R
 import net.leviro.ringer.databinding.ActivityAddContactBinding
 import net.leviro.ringer.db.Vip
 import net.leviro.ringer.db.VipDao
 import net.leviro.ringer.util.AlarmController
 import net.leviro.ringer.util.PhoneMatch
+import net.leviro.ringer.util.Prefs
 import net.leviro.ringer.util.RingtoneStore
 import java.io.File
 import java.util.Locale
@@ -22,11 +25,15 @@ class AddContactActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAddContactBinding
     private lateinit var dao: VipDao
+    private lateinit var prefs: Prefs
+    private lateinit var preview: SoundPreview
     private var editingId: Long = 0
     private var existing: Vip? = null
     private var pickedRingtonePath: String? = null
     private var startTime: String? = null
     private var endTime: String? = null
+    private var volumePercent: Int? = null
+    private var delaySeconds: Int? = null
 
     private val pickContact = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -45,6 +52,8 @@ class AddContactActivity : BaseActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         dao = VipDao(this)
+        prefs = Prefs(this)
+        preview = SoundPreview(this)
         editingId = intent.getLongExtra("id", 0)
 
         if (editingId != 0L) {
@@ -56,6 +65,7 @@ class AddContactActivity : BaseActivity() {
             binding.swEnabled.isChecked = true
         }
         refreshTimeButtons()
+        setupOverrides(existing)
 
         binding.btnPickContact.setOnClickListener {
             pickContact.launch(
@@ -91,6 +101,78 @@ class AddContactActivity : BaseActivity() {
         pickedRingtonePath = vip.ringtonePath
         binding.txtRingtone.text = ringtoneLabel(vip.ringtonePath)
     }
+
+    /** Each override starts from the Settings value, so a contact only differs where the user chose it. */
+    private fun setupOverrides(vip: Vip?) {
+        volumePercent = vip?.volumePercent
+        delaySeconds = vip?.delaySeconds
+        binding.swCustomVolume.isChecked = volumePercent != null
+        binding.sliderVolume.value = (volumePercent ?: prefs.alertVolumePercent).toFloat()
+        binding.swCustomDelay.isChecked = delaySeconds != null
+        binding.sliderDelay.value = (delaySeconds ?: prefs.alertDelaySeconds).toFloat()
+        binding.toggleRingAlso.select(vip?.alertWhenRinging)
+        binding.toggleShowCard.select(vip?.showCard)
+        binding.toggleBoost.select(vip?.boostAlarmVolume)
+        refreshOverrides()
+
+        binding.swCustomVolume.setOnCheckedChangeListener { _, on ->
+            volumePercent = if (on) binding.sliderVolume.value.toInt() else null
+            refreshOverrides()
+        }
+        binding.sliderVolume.addOnChangeListener { _, value, fromUser ->
+            if (!fromUser) return@addOnChangeListener
+            volumePercent = value.toInt()
+            refreshOverrides()
+            if (preview.isPlaying) preview.setGain(value.toInt())
+        }
+        binding.swCustomDelay.setOnCheckedChangeListener { _, on ->
+            delaySeconds = if (on) binding.sliderDelay.value.toInt() else null
+            refreshOverrides()
+        }
+        binding.sliderDelay.addOnChangeListener { _, value, fromUser ->
+            if (!fromUser) return@addOnChangeListener
+            delaySeconds = value.toInt()
+            refreshOverrides()
+        }
+        binding.btnPreview.setOnClickListener { togglePreview() }
+    }
+
+    private fun refreshOverrides() {
+        val volume = volumePercent
+        val delay = delaySeconds
+        binding.layoutCustomVolume.visibility = if (volume != null) View.VISIBLE else View.GONE
+        binding.layoutCustomDelay.visibility = if (delay != null) View.VISIBLE else View.GONE
+        binding.txtVolumeLabel.text = getString(R.string.volume_label_fmt, volume ?: prefs.alertVolumePercent)
+        binding.txtDelayLabel.text = getString(R.string.delay_label_fmt, delay ?: prefs.alertDelaySeconds)
+    }
+
+    /** Plays this contact's sound at its own volume, so the level can be judged before saving. */
+    private fun togglePreview() {
+        if (preview.isPlaying) {
+            stopPreview()
+            return
+        }
+        val path = pickedRingtonePath ?: prefs.defaultRingtonePath
+        preview.start(path?.let { Uri.fromFile(File(it)) } ?: RingtoneStore.defaultAlarmUri(),
+            volumePercent ?: prefs.alertVolumePercent)
+        binding.btnPreview.setText(R.string.preview_stop)
+    }
+
+    private fun stopPreview() {
+        preview.stop()
+        binding.btnPreview.setText(R.string.preview)
+    }
+
+    override fun onStop() {
+        stopPreview()
+        super.onStop()
+    }
+
+    private fun MaterialButtonToggleGroup.select(value: Boolean?) =
+        check(getChildAt(if (value == null) 0 else if (value) 1 else 2).id)
+
+    private fun MaterialButtonToggleGroup.override(): Boolean? =
+        when (indexOfChild(findViewById(checkedButtonId))) { 1 -> true; 2 -> false; else -> null }
 
     private fun readContact(uri: Uri) {
         try {
@@ -183,7 +265,12 @@ class AddContactActivity : BaseActivity() {
             enabled = binding.swEnabled.isChecked,
             vibrateOnly = binding.swVibrateOnly.isChecked,
             startTime = startTime,
-            endTime = endTime
+            endTime = endTime,
+            volumePercent = volumePercent,
+            delaySeconds = delaySeconds,
+            alertWhenRinging = binding.toggleRingAlso.override(),
+            showCard = binding.toggleShowCard.override(),
+            boostAlarmVolume = binding.toggleBoost.override()
         )
 
         if (editingId == 0L) {

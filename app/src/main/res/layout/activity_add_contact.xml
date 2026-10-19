@@ -155,6 +155,240 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <!-- Per-contact overrides of the Settings defaults -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/contact_alert_settings"
+                android:textColor="@color/neon"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/contact_alert_settings_desc"
+                android:textColor="@color/on_surface_muted" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/custom_volume_label"
+                    android:textColor="@color/on_bg"
+                    android:textSize="16sp" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swCustomVolume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutCustomVolume"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/txtVolumeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/on_surface_muted" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderVolume"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:valueFrom="0"
+                    android:valueTo="100" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPreview"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/preview" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/custom_delay_label"
+                    android:textColor="@color/on_bg"
+                    android:textSize="16sp" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swCustomDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutCustomDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/txtDelayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/on_surface_muted" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderDelay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:valueFrom="0"
+                    android:valueTo="30" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/ring_also_label"
+                android:textColor="@color/on_bg"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleRingAlso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ringAlsoDefault"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_default" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ringAlsoOn"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_on" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ringAlsoOff"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_off" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/show_card_label"
+                android:textColor="@color/on_bg"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleShowCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/showCardDefault"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_default" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/showCardOn"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_on" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/showCardOff"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_off" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/boost_label"
+                android:textColor="@color/on_bg"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleBoost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/boostDefault"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_default" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/boostOn"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_on" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/boostOff"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/override_off" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
             <!-- Optional time window -->
             <TextView
                 android:layout_width="match_parent"

@@ -83,6 +83,11 @@ class VipDao(context: Context) {
         put(DbHelper.COL_VIBRATE_ONLY, if (vibrateOnly) 1 else 0)
         put(DbHelper.COL_START_TIME, startTime)
         put(DbHelper.COL_END_TIME, endTime)
+        put(DbHelper.COL_VOLUME, volumePercent)
+        put(DbHelper.COL_DELAY, delaySeconds)
+        put(DbHelper.COL_RING_ALSO, alertWhenRinging?.let { if (it) 1 else 0 })
+        put(DbHelper.COL_SHOW_CARD, showCard?.let { if (it) 1 else 0 })
+        put(DbHelper.COL_BOOST, boostAlarmVolume?.let { if (it) 1 else 0 })
     }
 
     private fun Cursor.toVip(): Vip = Vip(
@@ -95,6 +100,14 @@ class VipDao(context: Context) {
         enabled = getInt(getColumnIndexOrThrow(DbHelper.COL_ENABLED)) == 1,
         vibrateOnly = getInt(getColumnIndexOrThrow(DbHelper.COL_VIBRATE_ONLY)) == 1,
         startTime = getString(getColumnIndexOrThrow(DbHelper.COL_START_TIME)),
-        endTime = getString(getColumnIndexOrThrow(DbHelper.COL_END_TIME))
+        endTime = getString(getColumnIndexOrThrow(DbHelper.COL_END_TIME)),
+        volumePercent = getIntOrNull(DbHelper.COL_VOLUME),
+        delaySeconds = getIntOrNull(DbHelper.COL_DELAY),
+        alertWhenRinging = getIntOrNull(DbHelper.COL_RING_ALSO)?.let { it == 1 },
+        showCard = getIntOrNull(DbHelper.COL_SHOW_CARD)?.let { it == 1 },
+        boostAlarmVolume = getIntOrNull(DbHelper.COL_BOOST)?.let { it == 1 }
     )
+
+    private fun Cursor.getIntOrNull(column: String): Int? =
+        getColumnIndexOrThrow(column).let { if (isNull(it)) null else getInt(it) }
 }

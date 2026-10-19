@@ -8,6 +8,8 @@ package net.leviro.ringer.db
  * @param vibrateOnly vibrate without sound for this caller.
  * @param startTime / [endTime] optional "HH:mm" window when this caller may trigger the alert;
  *        both null means any time. A start later than the end crosses midnight.
+ * @param volumePercent / [delaySeconds] / [alertWhenRinging] / [showCard] / [boostAlarmVolume]
+ *        per-contact overrides of the matching Settings value; null follows Settings.
  */
 data class Vip(
     val id: Long = 0,
@@ -19,5 +21,10 @@ data class Vip(
     val enabled: Boolean = true,
     val vibrateOnly: Boolean = false,
     val startTime: String? = null,
-    val endTime: String? = null
+    val endTime: String? = null,
+    val volumePercent: Int? = null,
+    val delaySeconds: Int? = null,
+    val alertWhenRinging: Boolean? = null,
+    val showCard: Boolean? = null,
+    val boostAlarmVolume: Boolean? = null
 )

@@ -66,6 +66,9 @@ is active right now.
 
 - **Priority callers** (Home, +): name, number (typed or picked from contacts), note, own
   ringtone, enabled, vibrate only, and an optional daily time window. Duplicate numbers are refused.
+  Each contact can also override the Settings defaults for volume (0 to 100%, with preview),
+  delay (0 to 30 s), alert when the phone rings normally, caller card and raising the alarm
+  volume. An override left on "Default" follows Settings.
 - **Settings**: alert sound and volume (0 to 100%, with preview), delay (0 to 30 s), default
   vibrate only, alert when the phone rings normally, caller card, raise alarm volume during an
   alert (opt-in), **global schedule** (active hours plus weekdays; a start later than the end runs

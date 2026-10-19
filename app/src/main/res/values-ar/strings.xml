@@ -127,4 +127,13 @@
     <string name="perm_dnd_desc">حماية إضافية حتى لا يكتم وضع عدم الإزعاج التنبيه.</string>
     <string name="perm_autostart_title">التشغيل التلقائي (حسب الجهاز)</string>
     <string name="perm_autostart_desc">تحتاج الشركة المصنّعة لتفعيل التشغيل التلقائي يدويًا، وإلا يُغلق التطبيق ولن يرن. هذا يفتح تلك الشاشة.</string>
+    <string name="contact_alert_settings">إعدادات التنبيه لهذا المتصل</string>
+    <string name="contact_alert_settings_desc">كل إعداد يتبع الإعدادات العامة ما لم تغيّره هنا.</string>
+    <string name="custom_volume_label">مستوى صوت خاص</string>
+    <string name="custom_delay_label">مهلة خاصة</string>
+    <string name="override_default">الافتراضي</string>
+    <string name="override_on">تشغيل</string>
+    <string name="override_off">إيقاف</string>
+    <string name="item_volume_fmt">الصوت %1$d%%</string>
+    <string name="item_delay_fmt">المهلة %1$d ث</string>
 </resources>

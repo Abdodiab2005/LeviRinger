@@ -34,6 +34,9 @@ object AlarmController {
         val ringtonePath: String?,
         val vibrateOnly: Boolean,
         val delaySeconds: Int,
+        val volumePercent: Int,
+        val boostAlarm: Boolean,
+        val showCard: Boolean,
         val test: Boolean = false
     )
 
@@ -76,10 +79,18 @@ object AlarmController {
         }
         vip ?: return@serialized
         Log.i(TAG, "match vip=${vip.id} suffix=${number.filter(Char::isDigit).takeLast(2)}")
-        arm(app, CallAlert(nextGeneration, vip.id, vip.name, number, vip.note,
-            vip.ringtonePath ?: prefs.defaultRingtonePath,
-            vip.vibrateOnly || prefs.defaultVibrateOnly, prefs.alertDelaySeconds))
+        arm(app, alertFor(nextGeneration, vip, number, prefs))
     }
+
+    /** One contact value wins over its Settings default; null falls back to Settings. */
+    private fun alertFor(generation: Long, vip: Vip, number: String, prefs: Prefs) = CallAlert(
+        generation, vip.id, vip.name, number, vip.note,
+        vip.ringtonePath ?: prefs.defaultRingtonePath,
+        vip.vibrateOnly || prefs.defaultVibrateOnly,
+        vip.delaySeconds ?: prefs.alertDelaySeconds,
+        vip.volumePercent ?: prefs.alertVolumePercent,
+        vip.boostAlarmVolume ?: prefs.boostAlarmVolume,
+        vip.showCard ?: prefs.showAlertCard)
 
     fun onCallStateChanged(context: Context, state: String) = serialized {
         if (state !in listOf(TelephonyManager.EXTRA_STATE_RINGING,
@@ -115,7 +126,8 @@ object AlarmController {
         val prefs = Prefs(app)
         arm(app, CallAlert(++generation, 0, app.getString(R.string.test_caller_name), "",
             app.getString(R.string.test_caller_note), prefs.defaultRingtonePath,
-            prefs.defaultVibrateOnly, 0, test = true))
+            prefs.defaultVibrateOnly, 0, prefs.alertVolumePercent, prefs.boostAlarmVolume,
+            prefs.showAlertCard, test = true))
     }
 
     fun onConfigChanged(context: Context) = serialized {
@@ -182,7 +194,7 @@ object AlarmController {
 
     private fun postFallback(context: Context, current: CallAlert) {
         Notifications.postAlert(context, current, waiting = true,
-            fullScreen = Prefs(context).showAlertCard && Notifications.canUseFullScreenIntent(context))
+            fullScreen = current.showCard && Notifications.canUseFullScreenIntent(context))
         Log.w(TAG, "generation=${current.generation} notification fallback; playback awaits visible card")
     }
 
@@ -238,11 +250,11 @@ object AlarmController {
         }
         val owner = service ?: return
         val prefs = Prefs(context)
-        val vip = if (current.test) null else VipDao(context).getAll().firstOrNull { it.id == current.vipId }
-        val refreshed = if (current.test) current else current.copy(
-            name = vip?.name.orEmpty(), note = vip?.note,
-            ringtonePath = vip?.ringtonePath ?: prefs.defaultRingtonePath,
-            vibrateOnly = vip?.vibrateOnly == true || prefs.defaultVibrateOnly)
+        val refreshed = if (current.test) current else {
+            val vip = VipDao(context).getAll().firstOrNull { it.id == current.vipId }
+                ?: return finish(context, "contact removed")
+            alertFor(current.generation, vip, current.number, prefs)
+        }
         call = refreshed
         state = State.ALERTING
         capTask?.let(handler::removeCallbacks)
@@ -250,7 +262,7 @@ object AlarmController {
             if (call?.generation == current.generation) finish(context, "hard cap")
         }.also { handler.postDelayed(it, if (current.test) 30_000L else 180_000L) }
         Log.i(TAG, "generation=${current.generation} WAITING_FOR_DELAY -> ALERTING")
-        owner.alert(refreshed, prefs)
+        owner.alert(refreshed)
     }
 
     private fun freshDecision(context: Context, current: CallAlert, ringing: Boolean): AlertDecision =
@@ -264,7 +276,7 @@ object AlarmController {
                 TimeWindow.parse(prefs.scheduleStart, prefs.scheduleEnd), prefs.scheduleDays),
             contactWindow = TimeWindow.parse(vip?.startTime, vip?.endTime),
             now = LocalDateTime.now(), audio = DeviceAudio.read(context),
-            alertWhenRinging = prefs.alertWhenRinging, callRinging = ringing,
+            alertWhenRinging = vip?.alertWhenRinging ?: prefs.alertWhenRinging, callRinging = ringing,
             manuallySilenced = manuallySilenced))
 
     private fun finish(context: Context, cause: String) {

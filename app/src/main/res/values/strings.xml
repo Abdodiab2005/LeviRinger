@@ -127,4 +127,13 @@
     <string name="perm_dnd_desc">Safety net so the alarm is never muted by DND.</string>
     <string name="perm_autostart_title">Auto-start (device specific)</string>
     <string name="perm_autostart_desc">Your manufacturer needs Auto-start enabled manually, or the app gets killed and will not ring. This opens that screen.</string>
+    <string name="contact_alert_settings">Alert settings for this contact</string>
+    <string name="contact_alert_settings_desc">Every setting follows Settings unless you change it here.</string>
+    <string name="custom_volume_label">Own volume</string>
+    <string name="custom_delay_label">Own delay</string>
+    <string name="override_default">Default</string>
+    <string name="override_on">On</string>
+    <string name="override_off">Off</string>
+    <string name="item_volume_fmt">Volume %1$d%%</string>
+    <string name="item_delay_fmt">Delay %1$d s</string>
 </resources>

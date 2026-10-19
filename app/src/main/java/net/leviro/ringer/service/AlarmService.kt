@@ -21,7 +21,6 @@ import androidx.core.app.ServiceCompat
 import net.leviro.ringer.util.AlarmController
 import net.leviro.ringer.util.Const
 import net.leviro.ringer.util.Notifications
-import net.leviro.ringer.util.Prefs
 import net.leviro.ringer.util.RingtoneStore
 import java.io.File
 
@@ -60,12 +59,12 @@ class AlarmService : Service() {
         if (!call.test) registerCallListener(call.generation)
     }
 
-    internal fun alert(call: AlarmController.CallAlert, prefs: Prefs) {
+    internal fun alert(call: AlarmController.CallAlert) {
         if (!AlarmController.playbackAllowed(call.generation)) return
-        Log.i(TAG, "generation=${call.generation} alert start gain=${prefs.alertVolumePercent}")
+        Log.i(TAG, "generation=${call.generation} alert start gain=${call.volumePercent}")
         ServiceCompat.startForeground(this, Const.NOTIF_ALERT,
             Notifications.build(this, call, waiting = false,
-                fullScreen = prefs.showAlertCard && Notifications.canUseFullScreenIntent(this),
+                fullScreen = call.showCard && Notifications.canUseFullScreenIntent(this),
                 channel = Const.CHANNEL_ALERT),
             if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0)
         vibrator = if (Build.VERSION.SDK_INT >= 31) {
@@ -75,9 +74,9 @@ class AlarmService : Service() {
             getSystemService(Vibrator::class.java)
         }
         vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 700, 500), 0))
-        if (!call.vibrateOnly && prefs.alertVolumePercent > 0) {
-            if (prefs.boostAlarmVolume) boostVolume()
-            play(call, prefs.alertVolumePercent / 100f, fallback = false)
+        if (!call.vibrateOnly && call.volumePercent > 0) {
+            if (call.boostAlarm) boostVolume()
+            play(call, call.volumePercent / 100f, fallback = false)
         }
     }
 

@@ -39,10 +39,12 @@ class VipAdapter(
         holder.b.btnDelete.setOnClickListener { onDelete(vip) }
     }
 
-    /** Secondary line summarizing vibrate-only and the per-contact time window. */
+    /** Secondary line summarizing vibrate-only, own volume and delay, and the per-contact time window. */
     private fun detailsLine(context: android.content.Context, vip: Vip): String {
         val parts = ArrayList<String>()
         if (vip.vibrateOnly) parts.add(context.getString(R.string.item_vibrate_only))
+        vip.volumePercent?.let { parts.add(context.getString(R.string.item_volume_fmt, it)) }
+        vip.delaySeconds?.let { parts.add(context.getString(R.string.item_delay_fmt, it)) }
         if (vip.startTime != null && vip.endTime != null) {
             parts.add(context.getString(R.string.item_window_fmt, vip.startTime, vip.endTime))
         }
