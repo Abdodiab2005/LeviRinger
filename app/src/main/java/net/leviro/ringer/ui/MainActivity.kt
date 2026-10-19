@@ -1,11 +1,18 @@
 package net.leviro.ringer.ui
 
+import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import net.leviro.ringer.R
@@ -15,6 +22,7 @@ import net.leviro.ringer.db.VipDao
 import net.leviro.ringer.rules.GlobalSchedule
 import net.leviro.ringer.rules.TimeWindow
 import net.leviro.ringer.util.AlarmController
+import net.leviro.ringer.util.Const
 import net.leviro.ringer.util.PermissionHelper
 import net.leviro.ringer.util.Prefs
 import java.time.LocalDateTime
@@ -25,6 +33,16 @@ class MainActivity : BaseActivity() {
     private lateinit var dao: VipDao
     private lateinit var prefs: Prefs
     private lateinit var adapter: VipAdapter
+
+    // The test alert must start whatever the answer: Home carries its own Stop button.
+    private val notificationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { startTestAlarm() }
+
+    // Every stop path (cap, notification, card, Stop here) broadcasts; the banner follows the controller.
+    private val stopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = refreshAlertBanner()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +72,11 @@ class MainActivity : BaseActivity() {
             AlarmController.onConfigChanged(this)
         }
 
+        binding.btnStopAlert.setOnClickListener {
+            AlarmController.stop(this)
+            refreshAlertBanner()
+        }
+
         binding.fabAdd.setOnClickListener { openEditor(0) }
         binding.btnSetup.setOnClickListener {
             startActivity(Intent(this, OnboardingActivity::class.java))
@@ -64,10 +87,26 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        ContextCompat.registerReceiver(this, stopReceiver, IntentFilter(Const.ACTION_STOP_ALERT),
+            ContextCompat.RECEIVER_NOT_EXPORTED)
+    }
+
+    override fun onStop() {
+        unregisterReceiver(stopReceiver)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         refresh()
         refreshStatus()
+        refreshAlertBanner()
+    }
+
+    private fun refreshAlertBanner() {
+        binding.alertBanner.visibility = if (AlarmController.active) View.VISIBLE else View.GONE
     }
 
     private fun refresh() {
@@ -147,7 +186,19 @@ class MainActivity : BaseActivity() {
 
     /** Fires the full alert with a fake caller so the user can verify sound + lock-screen behavior. */
     private fun testAlarm() {
+        if (PermissionHelper.needsNotificationPermission(this)) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            startTestAlarm()
+        }
+    }
+
+    private fun startTestAlarm() {
         AlarmController.triggerTest(this)
-        Snackbar.make(binding.root, R.string.test_started, Snackbar.LENGTH_LONG).show()
+        refreshAlertBanner()
+        val notificationsOn = NotificationManagerCompat.from(this).areNotificationsEnabled()
+        Snackbar.make(binding.root,
+            if (notificationsOn) R.string.test_started else R.string.test_no_notifications,
+            Snackbar.LENGTH_LONG).show()
     }
 }

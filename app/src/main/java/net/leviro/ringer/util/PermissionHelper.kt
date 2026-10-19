@@ -34,6 +34,12 @@ object PermissionHelper {
 
     fun hasAllRuntime(context: Context): Boolean = missingRuntimePermissions(context).isEmpty()
 
+    /** True when Android 13+ would still show the notification permission dialog. */
+    fun needsNotificationPermission(context: Context): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+
     // ---- Battery optimization ----
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {

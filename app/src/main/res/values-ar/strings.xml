@@ -10,6 +10,8 @@
     <string name="settings">الإعدادات</string>
     <string name="test_alarm">تجربة التنبيه</string>
     <string name="test_started">بدأ تنبيه التجربة — لا يمكن للتجربة التحقق من مكالمة حقيقية أو سلوك الخلفية أو عدم الإزعاج.</string>
+    <string name="test_no_notifications">بدأ تنبيه التجربة. الإشعارات متوقفة، لذلك استخدم زر الإيقاف في هذه الشاشة لإنهائه.</string>
+    <string name="alert_banner_playing">التنبيه يعمل الآن</string>
     <string name="test_caller_name">متصل تجريبي</string>
     <string name="test_caller_note">هكذا سيظهر التنبيه.</string>
 

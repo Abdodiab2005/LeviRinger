@@ -10,6 +10,8 @@
     <string name="settings">Settings</string>
     <string name="test_alarm">Test alarm</string>
     <string name="test_started">Test alarm started — a preview cannot validate real-call, background or Do Not Disturb behavior.</string>
+    <string name="test_no_notifications">Test alarm started. Notifications are off, so use the Stop button on this screen to end it.</string>
+    <string name="alert_banner_playing">Alert is playing</string>
     <string name="test_caller_name">Test caller</string>
     <string name="test_caller_note">This is how the alert will look.</string>
 
