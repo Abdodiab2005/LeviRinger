@@ -5,7 +5,7 @@ Build under test: `app/build/outputs/apk/debug/app-debug.apk`, package `net.levi
 ## Safe install
 
 ```bash
-adb -s Z5SOYXKFCAGAJRNR install app/build/outputs/apk/debug/app-debug.apk
+adb -s "$SERIAL" install app/build/outputs/apk/debug/app-debug.apk
 ```
 
 Do not use `adb uninstall` or `-r` on `net.leviro.ringer`. Only one app can hold the call-screening role: granting it to the debug build takes it from the installed 1.0 app. Give it back afterward in Settings > Apps > Default apps > Caller ID & spam app.
@@ -13,7 +13,7 @@ Do not use `adb uninstall` or `-r` on `net.leviro.ringer`. Only one app can hold
 Live log while testing (numbers are masked to the last 2 digits):
 
 ```bash
-adb -s Z5SOYXKFCAGAJRNR logcat -s LeviroRinger
+adb -s "$SERIAL" logcat -s LeviroRinger
 ```
 
 ## Setup

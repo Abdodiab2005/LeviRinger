@@ -4,7 +4,7 @@ Audit date: 2026-10-18. Evidence files stay in `.audit/` (git-ignored).
 
 ## Acquisition
 
-- Device: realme RMX3636, Android 15 (API 35), build RMX3636_15.0.0.1910(EX01), serial Z5SOYXKFCAGAJRNR over USB.
+- Device: realme RMX3636, Android 15 (API 35), build RMX3636_15.0.0.1910(EX01), connected over USB.
 - Package: `net.leviro.ringer`, label "Leviro Ringer". Two unrelated Leviro packages (`net.leviro.levix`, `net.leviro.levix.dev`) were not touched.
 - Installed build: versionName 1.0, versionCode 1, minSdk 23, targetSdk 34, compileSdk 34.
 - Flags: DEBUGGABLE, TEST_ONLY (an Android Studio debug install). First install 2026-05-31, last update 2026-06-08. Source files on disk are dated 2026-05-30, so the APK is newer than the source.
