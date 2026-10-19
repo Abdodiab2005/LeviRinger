@@ -27,7 +27,7 @@ adb -s "$SERIAL" logcat -s LeviroRinger
 
 ## Ringer and DND modes (priority contact calls, delay 0)
 
-- [ ] Silent: alert sounds within about 1 s of ringing.
+- [x] Silent: alert sounds within about 1 s of ringing. Real call 2026-10-19: delay 3 s, sound confirmed by the owner.
 - [ ] Vibrate: alert sounds.
 - [ ] DND with alarms allowed: alert sounds.
 - [ ] DND with alarms blocked: expected limitation, alert may stay silent. Note result.
@@ -38,7 +38,7 @@ adb -s "$SERIAL" logcat -s LeviroRinger
 
 ## Matching
 
-- [ ] Priority number calls: alert. Unlisted number: no alert.
+- [x] Priority number calls: alert (real call). [ ] Unlisted number: no alert.
 - [ ] Contact added from picker vs typed manually: both alert.
 - [ ] Stored as local `0...`, caller presents `+country...` (and the reverse): alert.
 - [ ] Private / hidden caller ID: no alert.
@@ -56,7 +56,7 @@ adb -s "$SERIAL" logcat -s LeviroRinger
 ## Delay
 
 - [ ] Delay 0: alert starts at ring.
-- [ ] Delay 10 s: notification says the alert sounds in 10 s, then sound starts.
+- [x] Per-contact delay 3 s: `delay fired` 3 s after `match`, then `ALERTING` (real call, log). [ ] Delay 10 s: notification text.
 - [ ] Caller hangs up during the delay: no sound afterward, ever.
 - [ ] Answer during the delay: no sound.
 - [ ] Notification Stop during the delay: no sound for that call.
@@ -66,23 +66,23 @@ adb -s "$SERIAL" logcat -s LeviroRinger
 - [ ] Answer: alert stops within about 1 s.
 - [ ] Decline: stops.
 - [ ] Caller hangs up: stops.
-- [ ] Notification "Stop alert": stops; the call keeps ringing normally.
+- [x] "Stop alert" (notification or card, the log does not say which): stops; the call keeps ringing normally. Real call.
 - [ ] Caller card Stop button: stops.
-- [ ] Volume Up / Down while the Leviro card is focused: stops.
+- [ ] Volume Up / Down while the Leviro card is focused: stops. Not tested with the card on screen. On a real call with only the heads-up notification shown, the volume key did not stop the alert. `AlertActivity` now logs `card key ...` to settle it.
 - [ ] Volume keys while the system call screen is focused: expected limitation, the phone handles the keys (may silence the ringtone only). Use notification Stop.
 - [ ] Alert never lasts more than 3 minutes.
 - [ ] Master switch off during an alert: stops.
 
 ## Loudness
 
-- [ ] Volume slider 100%, 50%, 10%: alert loudness follows. 0%: no sound, vibration and notification remain.
+- [x] Per-contact volume: contact at 14% played at `gain=14`, not the Settings value (real call). [ ] Slider 100%, 50%, 10% by ear. [ ] 0%: no sound, vibration and notification remain.
 - [ ] System alarm volume low with boost off: alert is quiet (expected). Boost on: alert loud, alarm volume restored after.
 - [ ] Settings Preview plays and stops; preview text says it cannot test real calls.
 
 ## Screen states and permissions
 
-- [ ] Screen locked: caller card appears at the top over the lock screen without asking to unlock (needs full-screen permission); Answer/Decline still reachable.
-- [ ] Screen unlocked: heads-up notification with Stop.
+- [ ] Screen locked (screen off, then call): caller card appears at the top over the lock screen without asking to unlock (needs full-screen permission); Answer/Decline still reachable.
+- [x] Screen unlocked (Leviro in the foreground): heads-up notification with Stop appeared; the caller card did not open by itself. Android shows a full-screen intent as a heads-up while the phone is in use.
 - [ ] Full-screen permission denied: notification only, sound still plays.
 - [ ] Notifications denied: Home shows what is missing.
 - [ ] Battery optimization back on: note whether sound still starts (expected to fail on Android 12+ in background).

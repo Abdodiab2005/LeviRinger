@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -84,6 +85,7 @@ class AlertActivity : AppCompatActivity() {
 
     override fun onPostResume() {
         super.onPostResume()
+        Log.i(TAG, "generation=$generation card resumed")
         if (!AlarmController.resumeFromCard(this, generation)) finish()
     }
 
@@ -95,6 +97,7 @@ class AlertActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode in intArrayOf(KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN,
                 KeyEvent.KEYCODE_VOLUME_MUTE)) {
+            Log.i(TAG, "generation=$generation card key ${KeyEvent.keyCodeToString(event.keyCode)} action=${event.action}")
             if (event.action == KeyEvent.ACTION_DOWN) stopAlert()
             return true
         }
@@ -105,4 +108,6 @@ class AlertActivity : AppCompatActivity() {
         AlarmController.stopGeneration(this, generation)
         finish()
     }
+
+    private companion object { const val TAG = "LeviroRinger" }
 }
